@@ -1,0 +1,43 @@
+Name: ATLAS_2014_I1304289
+Year: 2014
+Summary: Parton level differential top quark pair production cross sections in pp collisions at $\sqrt{s}=7 \text{TeV}$
+Experiment: ATLAS
+Collider: LHC
+InspireID: 1304289
+Status: UNVALIDATED
+Authors:
+ - Neil Warrack, neil.warrack@cern.ch
+ - Andy Buckley, andy.buckley@cern.ch
+#References:
+#- '<Example: arXiv:1407.0371v3>'
+RunInfo: <Describe event types, cuts, and other general generator config tips.>
+NeedCrossSection: no
+#Beams: [p+, p+]
+#Energies: [3500, 3500]
+Description:
+The normalized differential cross section for the top quark pair production is measured in pp collisions at a centre-of-mass energy of $7 \text{TeV}$. The dataset corresponds to an integrated luminosity of $4.6 fb^{-1}$, recorded in 2011. Events are selected in the lepton+jets channel, requiring exactly one lepton and at least four jets with at least one of the jets tagged as originating from a b-quark" 
+BibKey: Aad:2014zka
+BibTeX: '%%% contains utf-8, see: http://inspirehep.net/info/faq/general#utf8
+%%% add \usepackage[utf8]{inputenc} to your latex preamble
+
+@article{Aad:2014zka,
+      author         = "Aad, Georges and others",
+      title          = "{Measurements of normalized differential cross sections
+                        for $t\bar{t}$ production in pp collisions at
+                        $\sqrt{s}=7$  TeV using the ATLAS detector}",
+      collaboration  = "ATLAS",
+      journal        = "Phys. Rev.",
+      volume         = "D90",
+      year           = "2014",
+      number         = "7",
+      pages          = "072004",
+      doi            = "10.1103/PhysRevD.90.072004",
+      eprint         = "1407.0371",
+      archivePrefix  = "arXiv",
+      primaryClass   = "hep-ex",
+      reportNumber   = "CERN-PH-EP-2014-099",
+      SLACcitation   = "%%CITATION = ARXIV:1407.0371;%%"
+}'
+ToDo:
+ - Implement the analysis, test it, remove this ToDo, and mark as VALIDATED :-)
+
