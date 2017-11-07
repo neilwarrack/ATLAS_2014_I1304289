@@ -1,0 +1,4 @@
+# gitignore
+
+# back up files from emacs 
+*~
