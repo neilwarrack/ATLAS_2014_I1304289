@@ -1,9 +1,11 @@
 // -*- C++ -*-
 #include "Rivet/Analysis.hh"
 #include "Rivet/Projections/FinalState.hh"
+// #include "Rivet/Projections/VetoedFinalState.hh"
 #include "Rivet/Projections/FastJets.hh"
 #include "Rivet/Projections/PartonicTops.hh"
-
+#include "JetUtils.hh"
+#include "MissingMomentum.hh"
 namespace Rivet {
 
 
@@ -22,11 +24,24 @@ namespace Rivet {
     /// Book histograms and initialise projections before the run
     void init() {
 
-      // Initialise and register projections
+
+      // declare partonic tops with leptonic and hadronic decay mode, includes by default decays via taus. 
       declare(PartonicTops(PartonicTops::E_MU),     "LeptonicPartonTops");
       declare(PartonicTops(PartonicTops::HADRONIC), "HadronicPartonTops");
 
-      // Book histograms
+      // declare jets (using the 'anti-k_t' algorithm, radius parameter R=0.4)
+      const FinalState fs;
+      FastJets fj04 (fs, FastJets::ANTIKT, 0.4); 
+      declare(fj04, "AntiKt04");
+      //      declare(FastJets(fs, FastJets::ANTIKT, 0.4), "AntiKt04");
+
+      // ----- from ALEPH_2016_I1492968 -------
+      // declare mising energy projection
+      addProjection(MissingMomentum(fs), "MissingMomenta");
+
+
+
+      // Book histos
       _hSL_hadronicTopPt   = bookHisto1D("d01-x01-y01");
       _hSL_ttbarMass       = bookHisto1D("d02-x01-y01");
       _hSL_topPtTtbarSys   = bookHisto1D("d03-x01-y01");
@@ -36,12 +51,34 @@ namespace Rivet {
 
     void analyze(const Event& event) {
 
-      // Do the analysis only for the ttbar semileptonic channel, including decays of Ws into leptons via taus
+      // Find tops
       const Particles leptonicpartontops = apply<ParticleFinder>(event, "LeptonicPartonTops").particlesByPt();
       const Particles hadronicpartontops = apply<ParticleFinder>(event, "HadronicPartonTops").particlesByPt();
+
+      // Veto all non-semileptonic events     
       const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
-      if ( !isSemiLeptonic ) vetoEvent; //< if not a semileptonic ttbar pair decay, veto
+      if ( !isSemiLeptonic ) vetoEvent;
       
+
+      // Keep jets with p_T>25GeV and abs(eta) < 2.5
+      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*Gev, Cuts::abseta < 2.5);
+
+      // Keep only events with >4 jets (of which one must be b-tagged). 
+      if (jets.size() < 4) vetoEvent;
+      if (!any(jets, hasBTag())) vetoEvent;
+     
+
+      // Missing energy cut
+      // ------- (FROM ALEPH_2016_I1492968.cc) -----------------
+      const MissingMomentum& met = applyProjection<MissingMomentum>(event, "MissingMomenta");
+      double Pmiss = met.missingMomentum().pT();   // ALEPH analysis uses p(), not pT()
+      if (Pmiss>30GeV) vetoEvent;
+      // -------------------------------------------------------
+
+
+}
+
+ 
       // Parton level at full phase space
       // Fill top quarks defined in the parton level, full phase space
       const FourMomentum tLP4 = leptonicpartontops[0];
