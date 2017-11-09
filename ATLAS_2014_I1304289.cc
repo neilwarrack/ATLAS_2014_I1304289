@@ -4,8 +4,8 @@
 // #include "Rivet/Projections/VetoedFinalState.hh"
 #include "Rivet/Projections/FastJets.hh"
 #include "Rivet/Projections/PartonicTops.hh"
-#include "JetUtils.hh"
-#include "MissingMomentum.hh"
+#include "Rivet/Tools/JetUtils.hh" // is this correct ??
+#include "Rivet/Projections/MissingMomentum.hh"
 namespace Rivet {
 
 
@@ -61,7 +61,8 @@ namespace Rivet {
       
 
       // Keep jets with p_T>25GeV and abs(eta) < 2.5
-      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*Gev, Cuts::abseta < 2.5);
+      // Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV, Cuts::abseta < 2.5); // ERROR: doesn't expect 2 arguments!
+      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV);
 
       // Keep only events with >4 jets (of which one must be b-tagged). 
       if (jets.size() < 4) vetoEvent;
@@ -72,11 +73,11 @@ namespace Rivet {
       // ------- (FROM ALEPH_2016_I1492968.cc) -----------------
       const MissingMomentum& met = applyProjection<MissingMomentum>(event, "MissingMomenta");
       double Pmiss = met.missingMomentum().pT();   // ALEPH analysis uses p(), not pT()
-      if (Pmiss>30GeV) vetoEvent;
+      if (Pmiss>30*GeV) vetoEvent;
       // -------------------------------------------------------
 
 
-}
+    
 
  
       // Parton level at full phase space
@@ -101,7 +102,7 @@ namespace Rivet {
     /// @name Histograms
     Histo1DPtr _hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys;
 
-  };
+};
   
   
   // The hook for the plugin system
