@@ -4,7 +4,7 @@
 // #include "Rivet/Projections/VetoedFinalState.hh"
 #include "Rivet/Projections/FastJets.hh"
 #include "Rivet/Projections/PartonicTops.hh"
-#include "Rivet/Tools/JetUtils.hh" // is this correct ??
+#include "Rivet/Tools/JetUtils.hh" 
 #include "Rivet/Projections/MissingMomentum.hh"
 namespace Rivet {
 
@@ -58,11 +58,9 @@ namespace Rivet {
       // Veto all non-semileptonic events     
       const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
       if ( !isSemiLeptonic ) vetoEvent;
-      
 
       // Keep jets with p_T>25GeV and abs(eta) < 2.5
-      // Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV, Cuts::abseta < 2.5); // ERROR: doesn't expect 2 arguments!
-      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV);
+      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
 
       // Keep only events with >4 jets (of which one must be b-tagged). 
       if (jets.size() < 4) vetoEvent;
