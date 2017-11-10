@@ -42,10 +42,10 @@ namespace Rivet {
 
 
       // Book histos
-      _hSL_hadronicTopPt   = bookHisto1D("d01-x01-y01");
-      _hSL_ttbarMass       = bookHisto1D("d02-x01-y01");
-      _hSL_topPtTtbarSys   = bookHisto1D("d03-x01-y01");
-      _hSL_topAbsYTtbarSys = bookHisto1D("d05-x01-y01");
+      _hSL_hadronicTopPt   = bookHisto1D(1,1,1);
+      _hSL_ttbarMass       = bookHisto1D(2,1,1);
+      _hSL_topPtTtbarSys   = bookHisto1D(3,1,1);
+      _hSL_topAbsYTtbarSys = bookHisto1D(4,1,1);
     }
 
 
@@ -60,7 +60,8 @@ namespace Rivet {
       if ( !isSemiLeptonic ) vetoEvent;
 
       // Keep jets with p_T>25GeV and abs(eta) < 2.5
-      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
+      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV);
+      //      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
 
       // Keep only events with >4 jets (of which one must be b-tagged). 
       if (jets.size() < 4) vetoEvent;
@@ -94,7 +95,7 @@ namespace Rivet {
 
     /// Normalise histograms
     void finalize() {
-      normalize({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys});
+      scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys}, crossSection()/picobarn/sumOfWeights());
     }
     
     /// @name Histograms
