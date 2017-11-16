@@ -35,6 +35,18 @@ namespace Rivet {
       declare(fj04, "AntiKt04");
       //      declare(FastJets(fs, FastJets::ANTIKT, 0.4), "AntiKt04");
 
+      // ToDO: update Cuts
+      IdentifiedFinalState muonfs(Cuts::abseta < 2.37 && Cuts::pT > 16*GeV);
+      muonfs.acceptId(PID::MUON);
+      declare(muonfs, "Muon");
+
+
+      // ToDO: update Cuts
+      IdentifiedFinalState electronfs(Cuts::abseta < 2.37 && Cuts::pT > 16*GeV);
+      electronfs.acceptId(PID::ELECTRON);
+      declare(electronfs, "Electron");
+
+
       // ----- from ALEPH_2016_I1492968 -------
       // declare mising energy projection
       addProjection(MissingMomentum(fs), "MissingMomenta");
@@ -55,6 +67,11 @@ namespace Rivet {
       const Particles leptonicpartontops = apply<ParticleFinder>(event, "LeptonicPartonTops").particlesByPt();
       const Particles hadronicpartontops = apply<ParticleFinder>(event, "HadronicPartonTops").particlesByPt();
 
+      //find muons & electrons
+      const Particles muons = apply<IdentifiedFinalState>(event, "Muon").particlesByPt();
+      const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();
+
+
       // Veto all non-semileptonic events     
       const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
       if ( !isSemiLeptonic ) vetoEvent;
@@ -73,12 +90,36 @@ namespace Rivet {
       const MissingMomentum& met = applyProjection<MissingMomentum>(event, "MissingMomenta");
       double Pmiss = met.missingMomentum().pT();   // ALEPH analysis uses p(), not pT()
       if (Pmiss>30*GeV) vetoEvent;
-      // -------------------------------------------------------
+      // -------------------------END--------------------------
 
 
-    
 
- 
+      // --------- from ATLAS_2011_S9120807.cc L79 ------------
+      // Loop over photons and fill vector of isolated ones
+      Particles isolated_muons;
+      for (const Particle& muon : muons) {
+
+	/*
+        // Remove photons in crack
+        if (inRange(photon.abseta(), 1.37, 1.52)) continue;
+	*/
+
+        const Particles& fs = apply<FinalState>(event, "FS").particles();
+	//        FourMomentum mom_in_EtCone;
+        for (const Particle& p : fs) {
+          // Check if it's in the cone of .4
+          if (deltaR(muon,     p) >= 0.4) continue;    
+          if (deltaR(electron, p) >= 0.4) continue;    
+	 
+ // Veto if it's in the 5x7 central core
+          if (fabs(deltaEta(photon, p)) < 0.025*5.0*0.5 &&
+              fabs(deltaPhi(photon, p)) < (M_PI/128.)*7.0*0.5) continue;
+          // Increment isolation cone ET sum
+          mom_in_EtCone += p.momentum();
+        }
+       // -------------------------END--------------------------
+
+
       // Parton level at full phase space
       // Fill top quarks defined in the parton level, full phase space
       const FourMomentum tLP4 = leptonicpartontops[0];
