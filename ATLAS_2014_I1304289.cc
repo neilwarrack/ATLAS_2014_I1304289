@@ -42,7 +42,7 @@ namespace Rivet {
 
 
       // Book histos
-      _hSL_hadronicTopPt   = bookHisto1D("d01-x01-y01");
+      _hSL_hadronicTopPt   = bookHisto1D(1,1,1);
       _hSL_ttbarMass       = bookHisto1D("d02-x01-y01");
       _hSL_topPtTtbarSys   = bookHisto1D("d03-x01-y01");
       _hSL_topAbsYTtbarSys = bookHisto1D("d05-x01-y01");
