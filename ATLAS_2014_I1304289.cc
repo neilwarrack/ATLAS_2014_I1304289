@@ -7,6 +7,7 @@
 #include "Rivet/Tools/JetUtils.hh" 
 #include "Rivet/Projections/MissingMomentum.hh"
 #include "Rivet/Projections/IdentifiedFinalState.hh"
+#include "Rivet/Projections/WFinder.hh"
 
 namespace Rivet {
 
@@ -36,6 +37,8 @@ namespace Rivet {
       FastJets fj04 (fs, FastJets::ANTIKT, 0.4); 
       declare(fj04, "AntiKt04");
       //      declare(FastJets(fs, FastJets::ANTIKT, 0.4), "AntiKt04");
+      Cut cuts = Cuts::pT > 35*GeV
+      WFinder wboson(fs, cuts);
       
       // ToDO: update Cuts
       IdentifiedFinalState muonfs(Cuts::abseta < 2.5 && Cuts::pT > 25*GeV);
@@ -50,6 +53,7 @@ namespace Rivet {
       declare(electronfs, "Electron");
       
       
+
       // ----- from ALEPH_2016_I1492968 -------
       // declare mising energy projection
       addProjection(MissingMomentum(fs), "MissingMomenta");
@@ -66,6 +70,9 @@ namespace Rivet {
 
     void analyze(const Event& event) {
 
+      const WFinder& wboson = apply<WFinder>(event, "WBoson");
+      if (wboson.empty()) vetoEvent ;
+     
       // Find tops
       const Particles leptonicpartontops = apply<ParticleFinder>(event, "LeptonicPartonTops").particlesByPt();
       const Particles hadronicpartontops = apply<ParticleFinder>(event, "HadronicPartonTops").particlesByPt();
