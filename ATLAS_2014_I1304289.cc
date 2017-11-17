@@ -6,6 +6,8 @@
 #include "Rivet/Projections/PartonicTops.hh"
 #include "Rivet/Tools/JetUtils.hh" 
 #include "Rivet/Projections/MissingMomentum.hh"
+#include "Rivet/Projections/IdentifiedFinalState.hh"
+
 namespace Rivet {
 
 
@@ -68,7 +70,7 @@ namespace Rivet {
       const Particles hadronicpartontops = apply<ParticleFinder>(event, "HadronicPartonTops").particlesByPt();
 
       //find muons & electrons
-      const Particles muons = apply<IdentifiedFinalState>(event, "Muon").particlesByPt();
+      const Particles muons =     apply<IdentifiedFinalState>(event, "Muon"    ).particlesByPt();
       const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();
 
 
@@ -105,18 +107,19 @@ namespace Rivet {
 	*/
 
         const Particles& fs = apply<FinalState>(event, "FS").particles();
-	//        FourMomentum mom_in_EtCone;
+
         for (const Particle& p : fs) {
           // Check if it's in the cone of .4
-          if (deltaR(muon,     p) >= 0.4) continue;    
-          if (deltaR(electron, p) >= 0.4) continue;    
+          if (deltaR(muon, p) < 0.1) vetoEvent;    
+	  //          if (deltaR(electron, p) >= 0.4) continue;    
 	 
  // Veto if it's in the 5x7 central core
-          if (fabs(deltaEta(photon, p)) < 0.025*5.0*0.5 &&
-              fabs(deltaPhi(photon, p)) < (M_PI/128.)*7.0*0.5) continue;
+	  // if (fabs(deltaEta(photon, p)) < 0.025*5.0*0.5 &&
+          //    fabs(deltaPhi(photon, p)) < (M_PI/128.)*7.0*0.5) continue;
           // Increment isolation cone ET sum
-          mom_in_EtCone += p.momentum();
+
         }
+      }
        // -------------------------END--------------------------
 
 
@@ -142,7 +145,7 @@ namespace Rivet {
     /// @name Histograms
     Histo1DPtr _hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys;
 
-};
+  };
   
   
   // The hook for the plugin system
