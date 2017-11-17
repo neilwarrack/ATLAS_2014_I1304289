@@ -2,3 +2,4 @@
 
 # back up files from emacs 
 *~
+*.so
