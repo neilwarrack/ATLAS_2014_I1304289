@@ -37,7 +37,7 @@ namespace Rivet {
       FastJets fj04 (fs, FastJets::ANTIKT, 0.4); 
       declare(fj04, "AntiKt04");
       //      declare(FastJets(fs, FastJets::ANTIKT, 0.4), "AntiKt04");
-      Cut cuts = Cuts::pT > 35*GeV
+      Cut cuts = Cuts::pT > 35*GeV;
       WFinder wboson(fs, cuts);
       
       // ToDO: update Cuts
