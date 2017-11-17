@@ -73,39 +73,29 @@ namespace Rivet {
       //find muons & electrons
       const Particles muons     = apply<IdentifiedFinalState>(event, "Muon"    ).particlesByPt();
       const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();
-
+      
 
       // Veto all non-semileptonic events     
       const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
       if ( !isSemiLeptonic ) vetoEvent;
-
+      
       // Keep jets with p_T>25GeV and abs(eta) < 2.5
       //      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV);
       Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
-     
-
+      
+      
       // Missing energy cut
-      // ------- (FROM ALEPH_2016_I1492968.cc) -----------------
       const MissingMomentum& met = applyProjection<MissingMomentum>(event, "MissingMomenta");
-      double Pmiss = met.missingMomentum().pT();   // ALEPH analysis uses p(), not pT()
-      if (Pmiss>30*GeV) vetoEvent;
-      // -------------------------END--------------------------
-
-
-
-      // --------- from ATLAS_2011_S9120807.cc L79 ------------
+      double Pmiss = met.missingMomentum().pT(); 
+      if (Pmiss<30*GeV) vetoEvent;
+      
       // Sort electrons and jets
       Particles isolated_electrons;
+      Particles isolated_muons;
       Jets isolated_jets;
-      //      for (const Particle& electron : electrons) {
-	/*// Remove photons in crack
-        if (inRange(photon.abseta(), 1.37, 1.52)) continue; */
-       
-	//        const Particles& fs = apply<FinalState>(event, "FS").particles();
-	//        FourMomentum mom_in_EtCone;
       
-	// Discard jets within cone of R=.2 of an electron with p_T>15GeV
-      for (const Jets& j : jets) {
+      // Discard jets within cone of R=.2 of an electron with p_T>15GeV
+      for (const Jet j : jets) {
 	for  (const Particle& electron : electrons) {
 	  if (deltaR(electron, j) >= 0.2) continue ;
 	}
@@ -114,26 +104,24 @@ namespace Rivet {
       
       // Discard electrons within cone of R=.4 of an isolated jet
       for  (const Particle& electron : electrons) {
-	for (const Jets& cj : candidate_jets) {
-	  if (deltaR(electron, cj) >= 0.4) continue;
+	for (const Jet isol_j : isolated_jets) {
+	  if (deltaR(electron, isol_j) >= 0.4) continue;
 	}
-      isolated_electrons.push_back(electron);     
+	isolated_electrons.push_back(electron);     
       }
-
-      //if (fabs(deltaEta(photon, p)) < 0.025*5.0*0.5 &&
-      //fabs(deltaPhi(photon, p)) < (M_PI/128.)*7.0*0.5) continue;
-      // Increment isolation cone ET sum
-      //mom_in_EtCone += p.momentum();
       
-      
-
-
-      // Keep only events with >4 jets (of which one must be b-tagged). 
-      if (jets.size() < 4) vetoEvent;
+      // Keep only events with >4 isolated jets (of which one must be b-tagged). 
+      if (isolated_jets.size() < 4) vetoEvent;
       if (!any(jets, hasBTag())) vetoEvent;
 
-
-
+      // remove muons within R=.4 of isolated jets
+      for  (const Particle& muon : muons) {
+	for (const Jet isol_j : isolated_jets) {
+	  if (deltaR(muon, isol_j) >= 0.4) continue;
+	}
+	isolated_muons.push_back(muon);     
+      }
+      
       // Parton level at full phase space
       // Fill top quarks defined in the parton level, full phase space
       const FourMomentum tLP4 = leptonicpartontops[0];
@@ -147,7 +135,7 @@ namespace Rivet {
       _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight);
     }
     
-
+    
     /// Normalise histograms
     void finalize() {
       scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys}, crossSection()/picobarn/sumOfWeights());
@@ -155,7 +143,7 @@ namespace Rivet {
     
     /// @name Histograms
     Histo1DPtr _hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys;
-
+    
   };
   
   
