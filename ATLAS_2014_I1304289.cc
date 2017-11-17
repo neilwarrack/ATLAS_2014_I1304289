@@ -17,7 +17,7 @@ namespace Rivet {
     /// Constructor
     DEFAULT_RIVET_ANALYSIS_CTOR(ATLAS_2014_I1304289);
 
-
+    
     /// @name Analysis methods (?!)
     //@{
 
@@ -34,19 +34,20 @@ namespace Rivet {
       FastJets fj04 (fs, FastJets::ANTIKT, 0.4); 
       declare(fj04, "AntiKt04");
       //      declare(FastJets(fs, FastJets::ANTIKT, 0.4), "AntiKt04");
-
+      
       // ToDO: update Cuts
-      IdentifiedFinalState muonfs(Cuts::abseta < 2.37 && Cuts::pT > 16*GeV);
+      IdentifiedFinalState muonfs(Cuts::abseta < 2.5 && Cuts::pT > 25*GeV);
       muonfs.acceptId(PID::MUON);
       declare(muonfs, "Muon");
-
-
+      
+      
       // ToDO: update Cuts
-      IdentifiedFinalState electronfs(Cuts::abseta < 2.37 && Cuts::pT > 16*GeV);
+      IdentifiedFinalState electronfs(Cuts::abseta < 2.47 && Cuts::pT > 15*GeV); //paper (p.2): "20 or 22GeV" 
+      //IdentifiedFinalState electronfs(Cuts::pT > 20*GeV); //paper (p.2): "20 or 22GeV"
       electronfs.acceptId(PID::ELECTRON);
       declare(electronfs, "Electron");
-
-
+      
+      
       // ----- from ALEPH_2016_I1492968 -------
       // declare mising energy projection
       addProjection(MissingMomentum(fs), "MissingMomenta");
@@ -68,7 +69,7 @@ namespace Rivet {
       const Particles hadronicpartontops = apply<ParticleFinder>(event, "HadronicPartonTops").particlesByPt();
 
       //find muons & electrons
-      const Particles muons = apply<IdentifiedFinalState>(event, "Muon").particlesByPt();
+      const Particles muons     = apply<IdentifiedFinalState>(event, "Muon"    ).particlesByPt();
       const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();
 
 
@@ -77,12 +78,8 @@ namespace Rivet {
       if ( !isSemiLeptonic ) vetoEvent;
 
       // Keep jets with p_T>25GeV and abs(eta) < 2.5
-      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV);
-      //      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
-
-      // Keep only events with >4 jets (of which one must be b-tagged). 
-      if (jets.size() < 4) vetoEvent;
-      if (!any(jets, hasBTag())) vetoEvent;
+      //      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV);
+      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
      
 
       // Missing energy cut
@@ -95,29 +92,44 @@ namespace Rivet {
 
 
       // --------- from ATLAS_2011_S9120807.cc L79 ------------
-      // Loop over photons and fill vector of isolated ones
-      Particles isolated_muons;
-      for (const Particle& muon : muons) {
-
-	/*
-        // Remove photons in crack
-        if (inRange(photon.abseta(), 1.37, 1.52)) continue;
-	*/
-
-        const Particles& fs = apply<FinalState>(event, "FS").particles();
+      // Sort electrons and jets
+      Particles isolated_electrons;
+      Jets isolated_jets;
+      //      for (const Particle& electron : electrons) {
+	/*// Remove photons in crack
+        if (inRange(photon.abseta(), 1.37, 1.52)) continue; */
+       
+	//        const Particles& fs = apply<FinalState>(event, "FS").particles();
 	//        FourMomentum mom_in_EtCone;
-        for (const Particle& p : fs) {
-          // Check if it's in the cone of .4
-          if (deltaR(muon,     p) >= 0.4) continue;    
-          if (deltaR(electron, p) >= 0.4) continue;    
-	 
- // Veto if it's in the 5x7 central core
-          if (fabs(deltaEta(photon, p)) < 0.025*5.0*0.5 &&
-              fabs(deltaPhi(photon, p)) < (M_PI/128.)*7.0*0.5) continue;
-          // Increment isolation cone ET sum
-          mom_in_EtCone += p.momentum();
-        }
-       // -------------------------END--------------------------
+      
+	// Discard jets within cone of R=.2 of an electron with p_T>15GeV
+      for (const Jets& j : jets) {
+	for  (const Particle& electron : electrons) {
+	  if (deltaR(electron, j) >= 0.2) continue ;
+	}
+	isolated_jets.push_back(j);
+      }
+      
+      // Discard electrons within cone of R=.4 of an isolated jet
+      for  (const Particle& electron : electrons) {
+	for (const Jets& cj : candidate_jets) {
+	  if (deltaR(electron, cj) >= 0.4) continue;
+	}
+      isolated_electrons.push_back(electron);     
+      }
+
+      //if (fabs(deltaEta(photon, p)) < 0.025*5.0*0.5 &&
+      //fabs(deltaPhi(photon, p)) < (M_PI/128.)*7.0*0.5) continue;
+      // Increment isolation cone ET sum
+      //mom_in_EtCone += p.momentum();
+      
+      
+
+
+      // Keep only events with >4 jets (of which one must be b-tagged). 
+      if (jets.size() < 4) vetoEvent;
+      if (!any(jets, hasBTag())) vetoEvent;
+
 
 
       // Parton level at full phase space
