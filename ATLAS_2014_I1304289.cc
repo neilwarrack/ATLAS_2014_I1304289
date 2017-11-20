@@ -37,8 +37,8 @@ namespace Rivet {
       FastJets fj04 (fs, FastJets::ANTIKT, 0.4); 
       declare(fj04, "AntiKt04");
       //      declare(FastJets(fs, FastJets::ANTIKT, 0.4), "AntiKt04");
-      Cut cuts = Cuts::pT > 35*GeV;
-      WFinder wboson(fs, cuts);
+      //      Cut cuts = Cuts::pT > 35*GeV;
+      // WFinder wboson(fs, cuts);
       
       // Identify muons
       IdentifiedFinalState muonfs ( Cuts::abseta < 2.5 && Cuts::pT > 25*GeV ) ;
@@ -67,8 +67,8 @@ namespace Rivet {
 
     void analyze(const Event& event) {
 
-      const WFinder& wboson = apply<WFinder>(event, "WBoson");
-      if (wboson.empty()) vetoEvent ;
+      //      const WFinder& wboson = apply<WFinder>(event, "WBoson");
+      //if (wboson.empty()) vetoEvent ;
      
       // Find tops
       const Particles leptonicpartontops = apply<ParticleFinder>(event, "LeptonicPartonTops").particlesByPt();
@@ -76,8 +76,7 @@ namespace Rivet {
 
       //find muons & electrons
       const Particles muons     = apply<IdentifiedFinalState>(event, "Muon"    ).particlesByPt();
-      const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();
-      
+      const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();      
 
       // Veto event if it does not "pass either a single-electron or single-muon trigger"
       /*
@@ -89,13 +88,29 @@ namespace Rivet {
 
       // Use only jets with p_T>25GeV and abs(eta) < 2.5
       Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
-      
-      
+
       // Missing energy cut
-      const MissingMomentum& met = applyProjection<MissingMomentum>(event, "MissingMomenta");
-      double Pmiss = met.missingMomentum().pT(); 
-      if (Pmiss<30*GeV) vetoEvent;
-      
+      const MissingMomentum& misMom = applyProjection<MissingMomentum>(event, "MissingMomenta");
+      double Pmiss = misMom.missingMomentum().pT(); 
+      if (Pmiss<=30*GeV) vetoEvent;
+      //      double missingp_TPhi = misMom.azimuthalAngle();
+      FourMomentum mis4mom;
+      mis4mom = misMom.visibleMomentum();
+      double missingp_TPhi = mis4mom.azimuthalAngle();     
+
+      double wmt, leptonPhi, leptonPT;
+
+      if (muons.size() == 1){
+	leptonPhi = muons[0].phi();
+	leptonPT = muons[0].pT();
+      } else { // if (electrons.size() == 1) 
+	leptonPhi = electrons[0].phi();
+	leptonPT = electrons[0].pT();
+      }
+      wmt = sqrt( 2*leptonPT * Pmiss * (1-cos(leptonPhi - missingp_TPhi)));      
+      const bool wmassAboveThreashold = ( wmt > 35*GeV );
+      if (wmassAboveThreashold) vetoEvent;
+
       // Sort electrons and jets
       Particles isolated_electrons;
       Particles isolated_muons;
