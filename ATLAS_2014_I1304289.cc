@@ -40,21 +40,18 @@ namespace Rivet {
       Cut cuts = Cuts::pT > 35*GeV;
       WFinder wboson(fs, cuts);
       
-      // ToDO: update Cuts
-      IdentifiedFinalState muonfs(Cuts::abseta < 2.5 && Cuts::pT > 25*GeV);
-      muonfs.acceptId(PID::MUON);
+      // Identify muons
+      IdentifiedFinalState muonfs ( Cuts::abseta < 2.5 && Cuts::pT > 25*GeV ) ;
+      muonfs.acceptId(PID::MUON); // what does this line do?
       declare(muonfs, "Muon");
       
       
-      // ToDO: update Cuts
-      IdentifiedFinalState electronfs(Cuts::abseta < 2.47 && Cuts::pT > 15*GeV); //paper (p.2): "20 or 22GeV" 
-      //IdentifiedFinalState electronfs(Cuts::pT > 20*GeV); //paper (p.2): "20 or 22GeV"
+      // exclude electrons in gap between barrel and endcap calorimeters
+      IdentifiedFinalState electronfs((Cuts::abseta > 1.52 && Cuts::abseta < 2.47 && Cuts::pT > 15*GeV)
+				      || (Cuts::abseta < 1.37 && Cuts::pT > 15*GeV));
       electronfs.acceptId(PID::ELECTRON);
       declare(electronfs, "Electron");
       
-      
-
-      // ----- from ALEPH_2016_I1492968 -------
       // declare mising energy projection
       addProjection(MissingMomentum(fs), "MissingMomenta");
 
@@ -82,12 +79,15 @@ namespace Rivet {
       const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();
       
 
-      // Veto all non-semileptonic events     
+      // Veto event if it does not "pass either a single-electron or single-muon trigger"
+      /*
       const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
       if ( !isSemiLeptonic ) vetoEvent;
-      
-      // Keep jets with p_T>25GeV and abs(eta) < 2.5
-      //      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV);
+      */
+      const bool hasSingleLepton = ((muons.size() + electrons.size()) == 1);
+      if ( !hasSingleLepton ) vetoEvent;
+
+      // Use only jets with p_T>25GeV and abs(eta) < 2.5
       Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
       
       
