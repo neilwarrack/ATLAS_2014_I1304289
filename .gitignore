@@ -1,5 +1,10 @@
 # gitignore
 
-# back up files from emacs 
+
 *~
 *.so
+*#
+*.hepmc
+*.yoda
+**/
+*.html
