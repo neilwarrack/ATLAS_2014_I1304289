@@ -78,25 +78,25 @@ namespace Rivet {
       const Particles muons     = apply<IdentifiedFinalState>(event, "Muon"    ).particlesByPt();
       const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();      
 
+      /*****************************************************************************
       // Veto event if it does not "pass either a single-electron or single-muon trigger"
-      /*
       const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
       if ( !isSemiLeptonic ) vetoEvent;
-      */
       const bool hasSingleLepton = ((muons.size() + electrons.size()) == 1);
       if ( !hasSingleLepton ) vetoEvent;
+      *****************************************************************************/
 
       // Use only jets with p_T>25GeV and abs(eta) < 2.5
       Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
 
       // Missing energy cut
       const MissingMomentum& misMom = applyProjection<MissingMomentum>(event, "MissingMomenta");
-      double Pmiss = misMom.missingMomentum().pT(); 
+      double Pmiss = misMom.missingMomentum().pT(); // benifits of casting this as a const??
       if (Pmiss<=30*GeV) vetoEvent;
-      //      double missingp_TPhi = misMom.azimuthalAngle();
+
       FourMomentum mis4mom;
       mis4mom = misMom.visibleMomentum();
-      double missingp_TPhi = mis4mom.azimuthalAngle();     
+      double missingp_TPhi = mis4mom.azimuthalAngle(); // equal to: missingp_TPhi=mis4mom.phi();
 
       double wmt, leptonPhi, leptonPT;
 
