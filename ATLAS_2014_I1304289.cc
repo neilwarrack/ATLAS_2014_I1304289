@@ -180,8 +180,9 @@ namespace Rivet {
     
     /// Normalise histograms
     void finalize() {
-      //      double scale_factor = 1/crossSection()/sumOfWeights()/picobarn;
-      double scale_factor = 1/crossSection();
+      double scale_factor = 160*picobarn*TeV/sumOfWeights(); // equal to 100000/sumOfWeights();!!
+      //double scale_factor = 1/(sumOfWeights()/microbarn); // NB, use PhaseSpace:bias2Selection
+      // double scale_factor = 1/crossSection();
       scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys}, scale_factor);
       //normalize({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys});
     }
