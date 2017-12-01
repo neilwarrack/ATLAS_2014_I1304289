@@ -183,7 +183,7 @@ namespace Rivet {
       scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factorTeV);
       scale({_hSL_topAbsYTtbarSys}, scale_factorGeV);
    
-      MSG_WARNING(crossSection());    
+      MSG_INFO(crossSection());    
     }
     
     /// @name Histograms
