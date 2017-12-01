@@ -31,7 +31,7 @@ namespace Rivet {
 
 
 
-      // declare partonic tops with leptonic and hadronic decay mode, includes by default decays via taus. 
+      // declare tops with leptonic and hadronic decay mode, includes by default decays via taus. 
       declare(PartonicTops(PartonicTops::E_MU),     "LeptonicPartonTops");
       declare(PartonicTops(PartonicTops::HADRONIC), "HadronicPartonTops");
 
@@ -72,7 +72,7 @@ namespace Rivet {
 
     void analyze(const Event& event) {
 
-      //      MSG_WARNING(0);
+
 
       //      const WFinder& wboson = apply<WFinder>(event, "WBoson");
       //if (wboson.empty()) vetoEvent ;
@@ -88,12 +88,11 @@ namespace Rivet {
       const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();      
 
 
-      // Veto event if it does not "pass either a single-electron or single-muon trigger"
+      // Veto event if it is not semileptonic
       const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
       if ( !isSemiLeptonic ) vetoEvent;
 
     
-
       // Use only jets with p_T>25GeV and abs(eta) < 2.5
       Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
 
@@ -121,8 +120,8 @@ namespace Rivet {
       /// Discard electrons within cone of R=.4 of an isolated jet
       Particles isolated_electrons;
       for  (const Particle& electron : electrons) {
-	for (const Jet isol_j : isolated_jets) {
-	  if (deltaR(electron, isol_j) >= 0.4) continue;
+	for (const Jet ije : isolated_jets) {
+	  if (deltaR(electron, ije) >= 0.4) continue;
 	}
 	isolated_electrons.push_back(electron);     
       }
@@ -130,8 +129,8 @@ namespace Rivet {
       /// remove muons within R=.4 of isolated jets
       Particles isolated_muons;
       for  (const Particle& muon : muons) {
-	for (const Jet isol_j : isolated_jets) {
-	  if (deltaR(muon, isol_j) >= 0.4) continue;
+	for (const Jet ijm : isolated_jets) {
+	  if (deltaR(muon, ijm) >= 0.4) continue;
 	}
 	isolated_muons.push_back(muon);     
       }
@@ -153,8 +152,7 @@ namespace Rivet {
       if (isolated_muons.size() == 1){
 	leptonPhi = isolated_muons[0].phi();
 	leptonPT = isolated_muons[0].pT();
-	//      } else if (isolated_electrons.size() == 1) { 
-      } else {//if (isolated_electrons.size() == 1) { 
+      } else { //if (isolated_electrons.size() == 1) 
 	leptonPhi = isolated_electrons[0].phi();
 	leptonPT = isolated_electrons[0].pT();
       }
@@ -180,11 +178,12 @@ namespace Rivet {
     
     /// Normalise histograms
     void finalize() {
-      double scale_factor = 160*picobarn*TeV/sumOfWeights(); // equal to 100000/sumOfWeights();!!
-      //double scale_factor = 1/(sumOfWeights()/microbarn); // NB, use PhaseSpace:bias2Selection
-      // double scale_factor = 1/crossSection();
-      scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys}, scale_factor);
-      //normalize({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys});
+      double scale_factorTeV = crossSection()*picobarn*TeV/(2*sumOfWeights());
+      double scale_factorGeV = crossSection()*picobarn/(2*sumOfWeights());
+      scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factorTeV);
+      scale({_hSL_topAbsYTtbarSys}, scale_factorGeV);
+   
+      MSG_WARNING(crossSection());    
     }
     
     /// @name Histograms
