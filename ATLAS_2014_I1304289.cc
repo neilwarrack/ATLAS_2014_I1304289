@@ -87,11 +87,11 @@ namespace Rivet {
       const Particles muons     = apply<IdentifiedFinalState>(event, "Muon"    ).particlesByPt();
       const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();      
 
-
+      /*
       // Veto event if it is not semileptonic
       const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
       if ( !isSemiLeptonic ) vetoEvent;
-
+      */
     
       // Use only jets with p_T>25GeV and abs(eta) < 2.5
       Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
@@ -99,7 +99,7 @@ namespace Rivet {
 
       // Missing energy cut 
       const MissingMomentum& misMom = applyProjection<MissingMomentum>(event, "MissingMomenta");
-      double Pmiss = misMom.missingMomentum().pT(); // benifits of casting this as a const??
+      const double Pmiss = misMom.missingMomentum().pT(); // benifits of casting this as a const??
       if (Pmiss<=30*GeV) vetoEvent;
 
 
@@ -141,7 +141,6 @@ namespace Rivet {
       if ( !hasSingleLepton ) vetoEvent;
 
 
-
       // Transverse W boson mass cut
       FourMomentum mis4mom;
       mis4mom = misMom.visibleMomentum();
@@ -149,18 +148,49 @@ namespace Rivet {
       double wmt, leptonPhi, leptonPT;
 
 
+      // if the is single isolated lepton is a muon
       if (isolated_muons.size() == 1){
-	leptonPhi = isolated_muons[0].phi();
-	leptonPT = isolated_muons[0].pT();
-      } else { //if (isolated_electrons.size() == 1) 
-	leptonPhi = isolated_electrons[0].phi();
-	leptonPT = isolated_electrons[0].pT();
+      // require that the single isolated muon fired the trigger
+	if (isolated_muons[0].pT() < 18*GeV) {
+	  MSG_INFO(one isolated lepton found, a muon, but it did not fire the trigger. Event vetoed);
+	  vetoEvent;
+	}
+	else {
+	  // store variables to compute the W boson transverse mass
+	  leptonPhi = isolated_muons[0].phi();
+	  leptonPT  = isolated_muons[0].pT();
+	}
+      } 
+
+      // else if the single isolated lepton is an electron
+      else { 
+      // require that the single isolated electron fired the trigger
+	if (isolated_electrons[0].pT() < 22*GeV) {
+	  MSG_INFO(one isolated lepton found, a muon, but it did not fire the trigger);
+	  vetoEvent;
+	}
+	else {
+	  // store variables to compute the W boson transverse mass
+	  leptonPhi = isolated_electrons[0].phi();
+	  leptonPT  = isolated_electrons[0].pT();
+	}
       }
+      
 
-
+      // compute transverse mass of the W boson and satisfy cut.
       wmt = sqrt( 2*leptonPT * Pmiss * (1-cos(leptonPhi - missingp_TPhi)));      
       const bool wmassAboveThreashold = ( wmt > 35*GeV );
       if (wmassAboveThreashold) vetoEvent;
+    
+      MSG_INFO(success);
+
+      // sanity check
+
+      const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
+      if ( isSemiLeptonic ) {
+	MSG_INFO(THIS MAKES NO SENSE)
+};
+      
 
 
       // Fill top quarks defined in the parton level, full phase space
@@ -178,8 +208,11 @@ namespace Rivet {
     
     /// Normalise histograms
     void finalize() {
-      double scale_factorTeV = crossSection()*picobarn*TeV/(2*sumOfWeights());
-      double scale_factorGeV = crossSection()*picobarn/(2*sumOfWeights());
+
+      const float BR = 0.438; // branching ratio of ttbar -> l+jets channel
+      double scale_factorTeV = BR*crossSection()*picobarn*TeV/sumOfWeights();
+      double scale_factorGeV = BR*crossSection()*picobarn/sumOfWeights();
+
       scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factorTeV);
       scale({_hSL_topAbsYTtbarSys}, scale_factorGeV);
    
