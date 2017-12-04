@@ -152,7 +152,7 @@ namespace Rivet {
       if (isolated_muons.size() == 1){
       // require that the single isolated muon fired the trigger
 	if (isolated_muons[0].pT() < 18*GeV) {
-	  MSG_INFO(one isolated lepton found, a muon, but it did not fire the trigger. Event vetoed);
+	  MSG_INFO(3);
 	  vetoEvent;
 	}
 	else {
@@ -166,7 +166,7 @@ namespace Rivet {
       else { 
       // require that the single isolated electron fired the trigger
 	if (isolated_electrons[0].pT() < 22*GeV) {
-	  MSG_INFO(one isolated lepton found, a muon, but it did not fire the trigger);
+	  MSG_INFO(5);
 	  vetoEvent;
 	}
 	else {
@@ -182,13 +182,13 @@ namespace Rivet {
       const bool wmassAboveThreashold = ( wmt > 35*GeV );
       if (wmassAboveThreashold) vetoEvent;
     
-      MSG_INFO(success);
+      MSG_INFO(6);
 
       // sanity check
 
       const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
       if ( isSemiLeptonic ) {
-	MSG_INFO(THIS MAKES NO SENSE)
+	MSG_INFO(5);
 };
       
 
