@@ -71,40 +71,24 @@ namespace Rivet {
 
 
     void analyze(const Event& event) {
-
-
-
-      //      const WFinder& wboson = apply<WFinder>(event, "WBoson");
-      //if (wboson.empty()) vetoEvent ;
-     
-
-      // Find tops
+      //    cout << "test" << endl;
+      // Find tops & veto if not semileptonic.
       const Particles leptonicpartontops = apply<ParticleFinder>(event, "LeptonicPartonTops").particlesByPt();
       const Particles hadronicpartontops = apply<ParticleFinder>(event, "HadronicPartonTops").particlesByPt();
+      const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
+      //      if ( !isSemiLeptonic ) { MSG_INFO(0.1) ; vetoEvent ; }
+      if ( !isSemiLeptonic ) {   cout<<"1"<<endl; vetoEvent ; }
+     
 
-
-      //find muons & electrons
+      // Find leptons & jets; build vectors.
       const Particles muons     = apply<IdentifiedFinalState>(event, "Muon"    ).particlesByPt();
       const Particles electrons = apply<IdentifiedFinalState>(event, "Electron").particlesByPt();      
-
-      /*
-      // Veto event if it is not semileptonic
-      const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
-      if ( !isSemiLeptonic ) vetoEvent;
-      */
-    
-      // Use only jets with p_T>25GeV and abs(eta) < 2.5
-      Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
+      const Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
 
 
-      // Missing energy cut 
-      const MissingMomentum& misMom = applyProjection<MissingMomentum>(event, "MissingMomenta");
-      const double Pmiss = misMom.missingMomentum().pT(); // benifits of casting this as a const??
-      if (Pmiss<=30*GeV) vetoEvent;
 
-
-      // Isolate electrons and jets
-      /// Discard jets within cone of R=.2 of an electron with p_T>15GeV
+      // Isolate electrons and jets.
+      // Discard jets within cone of R=0.2 of electron
       Jets isolated_jets;
       for (const Jet j : jets) {
 	for  (const Particle& electron : electrons) {
@@ -112,10 +96,6 @@ namespace Rivet {
 	}
 	isolated_jets.push_back(j);
       }
-
-      /// Keep only events with >4 isolated jets (of which one must be b-tagged). 
-      if (isolated_jets.size() < 4) vetoEvent;
-      if (!any(jets, hasBTag())) vetoEvent;
 
       /// Discard electrons within cone of R=.4 of an isolated jet
       Particles isolated_electrons;
@@ -136,97 +116,107 @@ namespace Rivet {
       }
 
 
-      // Event is required to contain exactly one isolated lepton //(which fired the trigger????)
-      const bool hasSingleLepton = ((isolated_muons.size() + isolated_electrons.size()) == 1);
-      if ( !hasSingleLepton ) vetoEvent;
+      // Require event to contain exactly one isolated lepton which fired the trigger
+      const bool hasSingleIsolatedLepton = ((isolated_muons.size() + isolated_electrons.size()) == 1);
+      //      if ( !hasSingleIsolatedLepton ) { MSG_INFO(0.5) ; vetoEvent ; }
+      if ( !hasSingleIsolatedLepton ) { cout<<"2"<<endl ; vetoEvent ; }
 
 
-      // Transverse W boson mass cut
-      FourMomentum mis4mom;
-      mis4mom = misMom.visibleMomentum();
-      double missingp_TPhi = mis4mom.azimuthalAngle(); // equal to: missingp_TPhi=mis4mom.phi();
-      double wmt, leptonPhi, leptonPT;
+
+      // Missing energy cut.
+      const MissingMomentum& misMom = applyProjection<MissingMomentum>(event, "MissingMomenta");
+      const double Pmiss = misMom.missingMomentum().pT();
+      //      if (Pmiss<=30*GeV){ MSG_INFO(0.2) ; vetoEvent ; }
+ if (Pmiss<=30*GeV){  cout<<"3"<<endl ; vetoEvent ; }
 
 
-      // if the is single isolated lepton is a muon
+      /// Keep only events with >4 isolated jets (of which one must be b-tagged). 
+      //if ( isolated_jets.size() < 4 ) { MSG_INFO(0.3) ; vetoEvent ; }
+      if ( isolated_jets.size() < 4 ) { cout<<"4"<<endl;         vetoEvent ; }
+      //if ( !any( jets, hasBTag() ) )  { MSG_INFO(0.4) ; vetoEvent ; }
+      if ( !any( jets, hasBTag() ) )  { cout << "5"<<endl ; vetoEvent ; }
+
+      
+      //// store variables to compute W boson transverse mass
+      double leptonPhi = 0.0 ;
+      double leptonPT  = 0.0 ;
       if (isolated_muons.size() == 1){
-      // require that the single isolated muon fired the trigger
+	//// Muon trigger threshold
 	if (isolated_muons[0].pT() < 18*GeV) {
-	  MSG_INFO(3);
-	  vetoEvent;
+	  //	  MSG_INFO(0.61) ; vetoEvent ;
+	  cout<<"6"<<endl ; vetoEvent ;
+	} else {
+	  leptonPhi = isolated_muons[0].phi() ;
+	  leptonPT  = isolated_muons[0].pT() ;
 	}
-	else {
-	  // store variables to compute the W boson transverse mass
-	  leptonPhi = isolated_muons[0].phi();
-	  leptonPT  = isolated_muons[0].pT();
-	}
-      } 
-
-      // else if the single isolated lepton is an electron
-      else { 
-      // require that the single isolated electron fired the trigger
+      } else { 
+	//// Electron trigger threshold
 	if (isolated_electrons[0].pT() < 22*GeV) {
-	  MSG_INFO(5);
-	  vetoEvent;
-	}
-	else {
-	  // store variables to compute the W boson transverse mass
-	  leptonPhi = isolated_electrons[0].phi();
-	  leptonPT  = isolated_electrons[0].pT();
+	  //	  MSG_INFO(0.62); vetoEvent ;
+	  cout<<"7"<<endl; vetoEvent ;	
+	} else {
+	  leptonPhi = isolated_electrons[0].phi() ;
+	  leptonPT  = isolated_electrons[0].pT() ;
 	}
       }
       
-
-      // compute transverse mass of the W boson and satisfy cut.
-      wmt = sqrt( 2*leptonPT * Pmiss * (1-cos(leptonPhi - missingp_TPhi)));      
-      const bool wmassAboveThreashold = ( wmt > 35*GeV );
-      if (wmassAboveThreashold) vetoEvent;
-    
-      MSG_INFO(6);
-
-      // sanity check
-
-      const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
-      if ( isSemiLeptonic ) {
-	MSG_INFO(5);
-};
       
-
+      // Transverse W boson mass cut
+      FourMomentum mis4mom ;
+      mis4mom = misMom.visibleMomentum() ;
+      double missingp_TPhi = mis4mom.phi() ;
+      double wmt = sqrt( 2*leptonPT * Pmiss * (1-cos(leptonPhi - missingp_TPhi))) ;      
+      const bool wmassAboveThreashold = ( wmt > 35*GeV ) ;
+      // if (!wmassAboveThreashold) { MSG_INFO(0.7) ; vetoEvent ; }
+      if (!wmassAboveThreashold) { cout<<"8"<<endl ; vetoEvent ; }
+    
 
       // Fill top quarks defined in the parton level, full phase space
-      const FourMomentum tLP4 = leptonicpartontops[0];
-      const FourMomentum tHP4 = hadronicpartontops[0];
-      const FourMomentum ttbarP4 = tLP4 + tHP4;
-      const double weight = event.weight();
+      /////////something is going wrong here!!!
+      const FourMomentum tLP4 = leptonicpartontops[0] ;
+      // MSG_INFO(1);
+      const FourMomentum tHP4 = hadronicpartontops[0] ;
+      // MSG_INFO(2);
+      const FourMomentum ttbarP4 = tLP4 + tHP4 ;
+      //MSG_INFO(3);
+      const double weight = event.weight() ;
+
+      //MSG_INFO(4);
      
-      _hSL_hadronicTopPt->fill(tHP4.pT(), weight);
-      _hSL_ttbarMass->fill(ttbarP4.mass(), weight);
-      _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight);
-      _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight);
+      _hSL_hadronicTopPt->fill(tHP4.pT(), weight) ;
+      //MSG_INFO(5);
+      _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
+      //MSG_INFO(6);
+      _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
+      //MSG_INFO(7);
+      _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;
+
+      //      MSG_INFO(100) ;
+      cout<<"9"<<endl ;
     }
 
     
     /// Normalise histograms
     void finalize() {
 
-      const float BR = 0.438; // branching ratio of ttbar -> l+jets channel
-      double scale_factorTeV = BR*crossSection()*picobarn*TeV/sumOfWeights();
-      double scale_factorGeV = BR*crossSection()*picobarn/sumOfWeights();
+      const float BR = 0.438 ; // branching ratio of ttbar -> l+jets channel
+      double scale_factorTeV = BR*crossSection()*picobarn*TeV/sumOfWeights() ;
+      double scale_factorGeV = BR*crossSection()*picobarn/sumOfWeights() ;
 
-      scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factorTeV);
-      scale({_hSL_topAbsYTtbarSys}, scale_factorGeV);
+      scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factorTeV) ;
+      scale({_hSL_topAbsYTtbarSys}, scale_factorGeV) ;
    
-      MSG_INFO(crossSection());    
+      MSG_INFO(crossSection()) ;    
     }
     
     /// @name Histograms
-    Histo1DPtr _hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys;
+    Histo1DPtr _hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys ;
     
-  };
+  } ;
   
   
   // The hook for the plugin system
-  DECLARE_RIVET_PLUGIN(ATLAS_2014_I1304289);
+  DECLARE_RIVET_PLUGIN(ATLAS_2014_I1304289) ;
   
   
 }
