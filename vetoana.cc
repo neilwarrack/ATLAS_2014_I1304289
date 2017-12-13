@@ -23,11 +23,18 @@
 using namespace std;
 
 
-int main(){
+int main ( int argc, char *argv[] ){
+  if (argc != 2) {
+    cout << "requires an input (.log) file as argument"<< endl;
+    return 1;
+}
+  string filename = argv[1];
+  cout << "filename = " << filename << endl ;
+
 
 ifstream mydata;
   // Now open an existing file...
- mydata.open("ana.log");
+ mydata.open(filename);
  // check that operation worked...
  if ( mydata.fail() ) {
    cout << "Sorry, couldn’t open file ana.log -- It does not exisit in this location!" << endl;
