@@ -1,10 +1,10 @@
-#!/cvmfs/sft.cern.ch/lcg/releases/LCG_87/Python/2.7.10/x86_64-slc6-gcc62-opt/bin/python
+0;95;0c#!/cvmfs/sft.cern.ch/lcg/releases/LCG_87/Python/2.7.10/x86_64-slc6-gcc62-opt/bin/python
 #!/usr/local/opt/python/libexec/bin/python
 
 import yoda, random
 hs=yoda.read("Rivet.yoda", asdict=False)
 #h = yoda.Histo1D(20, 0.0, 1.0, "/foo")
-h=hs[1]
+h=hs[0]
 for b in h.bins:
     print b
 ys=[b.numEntries for b in h.bins]
@@ -23,3 +23,4 @@ pl.grid(True)
 
 pl.plot(xs,ys)
 pl.savefig("hadronicTopPT.pdf")
+

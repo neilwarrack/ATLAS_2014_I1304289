@@ -5,6 +5,10 @@
 *.so
 *#
 *.hepmc
-*.yoda
 **/
 *.html
+*.pdf
+*.yoda.*
+Rivet.yoda
+*.log
+*.sh

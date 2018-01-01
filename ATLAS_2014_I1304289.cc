@@ -47,7 +47,7 @@ namespace Rivet {
       
       // Identify muons
       IdentifiedFinalState muonfs ( Cuts::abseta < 2.5 && Cuts::pT > 25*GeV ) ;
-      muonfs.acceptId(PID::MUON); // what does this line do?
+      muonfs.acceptId(PID::MUON);
       declare(muonfs, "Muon");
       
       
@@ -98,7 +98,7 @@ namespace Rivet {
 	if ( !tooClose ) isolated_jets.push_back(j) ;
 	tooClose = false ; // reset flag
       }
-
+      
       /// Discard electrons within cone of R=.4 of an isolated jet
       Particles isolated_electrons;
       for (const Particle& electron : electrons) {
@@ -108,7 +108,7 @@ namespace Rivet {
 	if ( !tooClose ) isolated_electrons.push_back(electron);     
 	tooClose = false ; // reset flag     
       }
-
+      
       /// remove muons within R=.4 of isolated jets
       Particles isolated_muons;
       for (const Particle& muon : muons) {
@@ -118,8 +118,8 @@ namespace Rivet {
 	if ( !tooClose ) isolated_muons.push_back(muon);     
 	tooClose = false ; // reset flat    
       }
-
-
+      
+      
       // Require event to contain exactly one isolated lepton which fired the trigger
       const bool hasSingleIsolatedLepton = ((isolated_muons.size() + isolated_electrons.size()) == 1);
       //      if ( !hasSingleIsolatedLepton ) { MSG_INFO(0.5) ; vetoEvent ; }
@@ -203,7 +203,7 @@ namespace Rivet {
       scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factorTeV) ;
       scale({_hSL_topAbsYTtbarSys}, scale_factorGeV) ;
    
-      MSG_INFO(crossSection()) ;    
+      //MSG_INFO(crossSection()) ;    
     }
     
     /// @name Histograms
