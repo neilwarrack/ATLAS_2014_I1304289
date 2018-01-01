@@ -9,3 +9,5 @@
 *.html
 *.pdf
 *.yoda.*
+Rivet.yoda
+*.log
