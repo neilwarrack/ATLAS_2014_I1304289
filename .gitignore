@@ -5,6 +5,7 @@
 *.so
 *#
 *.hepmc
-*.yoda
 **/
 *.html
+*.pdf
+*.yoda.*
