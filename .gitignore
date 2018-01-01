@@ -12,3 +12,4 @@
 Rivet.yoda
 *.log
 *.sh
+*.py
