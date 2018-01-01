@@ -90,29 +90,33 @@ namespace Rivet {
       // Isolate electrons and jets.
       // Discard jets within cone of R=0.2 of electron
       Jets isolated_jets;
+      bool tooClose = false ;
       for (const Jet j : jets) {
-	for  (const Particle& electron : electrons) {
-	  if (deltaR(electron, j) >= 0.2) continue ;
+	for (const Particle& electron : electrons) {
+	  if (deltaR(electron, j) <= 0.2) tooClose = true ; 
 	}
-	isolated_jets.push_back(j);
+	if ( !tooClose ) isolated_jets.push_back(j) ;
+	tooClose = false ; // reset flag
       }
 
       /// Discard electrons within cone of R=.4 of an isolated jet
       Particles isolated_electrons;
-      for  (const Particle& electron : electrons) {
+      for (const Particle& electron : electrons) {
 	for (const Jet ije : isolated_jets) {
-	  if (deltaR(electron, ije) >= 0.4) continue;
+	  if (deltaR(ije, electron) <= 0.4) tooClose = true ;
 	}
-	isolated_electrons.push_back(electron);     
+	if ( !tooClose ) isolated_electrons.push_back(electron);     
+	tooClose = false ; // reset flag     
       }
 
       /// remove muons within R=.4 of isolated jets
       Particles isolated_muons;
-      for  (const Particle& muon : muons) {
+      for (const Particle& muon : muons) {
 	for (const Jet ijm : isolated_jets) {
-	  if (deltaR(muon, ijm) >= 0.4) continue;
+	  if (deltaR(ijm, muon) <= 0.4) tooClose = true ;
 	}
-	isolated_muons.push_back(muon);     
+	if ( !tooClose ) isolated_muons.push_back(muon);     
+	tooClose = false ; // reset flat    
       }
 
 
@@ -127,7 +131,7 @@ namespace Rivet {
       const MissingMomentum& misMom = applyProjection<MissingMomentum>(event, "MissingMomenta");
       const double Pmiss = misMom.missingMomentum().pT();
       //      if (Pmiss<=30*GeV){ MSG_INFO(0.2) ; vetoEvent ; }
- if (Pmiss<=30*GeV){  cout<<"3"<<endl ; vetoEvent ; }
+      if (Pmiss<=30*GeV){  cout<<"3"<<endl ; vetoEvent ; }
 
 
       /// Keep only events with >4 isolated jets (of which one must be b-tagged). 
@@ -172,23 +176,16 @@ namespace Rivet {
     
 
       // Fill top quarks defined in the parton level, full phase space
-      /////////something is going wrong here!!!
+
       const FourMomentum tLP4 = leptonicpartontops[0] ;
-      // MSG_INFO(1);
       const FourMomentum tHP4 = hadronicpartontops[0] ;
-      // MSG_INFO(2);
       const FourMomentum ttbarP4 = tLP4 + tHP4 ;
-      //MSG_INFO(3);
       const double weight = event.weight() ;
 
-      //MSG_INFO(4);
      
       _hSL_hadronicTopPt->fill(tHP4.pT(), weight) ;
-      //MSG_INFO(5);
       _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
-      //MSG_INFO(6);
       _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
-      //MSG_INFO(7);
       _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;
 
       //      MSG_INFO(100) ;
