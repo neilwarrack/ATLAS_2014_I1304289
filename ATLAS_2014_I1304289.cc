@@ -47,7 +47,7 @@ namespace Rivet {
       
       // Identify muons
       IdentifiedFinalState muonfs ( Cuts::abseta < 2.5 && Cuts::pT > 25*GeV ) ;
-      muonfs.acceptId(PID::MUON); // what does this line do?
+      muonfs.acceptId(PID::MUON);
       declare(muonfs, "Muon");
       
       

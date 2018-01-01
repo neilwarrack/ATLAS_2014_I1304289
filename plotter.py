@@ -2,7 +2,7 @@
 import yoda, random
 hs=yoda.read("Rivet.yoda", asdict=False)
 #h = yoda.Histo1D(20, 0.0, 1.0, "/foo")
-h=hs[1]
+h=hs[0]
 for b in h.bins:
     print b
 ys=[b.numEntries for b in h.bins]
@@ -20,4 +20,4 @@ pl.title(r'Inspire:1304289 ; pp at 7 TeV')
 pl.grid(True)
 
 pl.plot(xs,ys)
-pl.savefig("test.pdf")
+pl.savefig("out.pdf")
