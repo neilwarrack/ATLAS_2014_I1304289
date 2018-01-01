@@ -11,3 +11,4 @@
 *.yoda.*
 Rivet.yoda
 *.log
+*.sh
