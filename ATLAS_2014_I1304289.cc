@@ -89,33 +89,41 @@ namespace Rivet {
 
       // Isolate electrons and jets.
       // Discard jets within cone of R=0.2 of electron
-      Jets isolated_jets;
+      Jets isolated_jets ;
+      bool isIsolated ;
       for (const Jet j : jets) {
-	for  (const Particle& electron : electrons) {
-	  if (deltaR(electron, j) >= 0.2) continue ;
-	}
-	isolated_jets.push_back(j);
+        isIsolated = true ;
+        for  (const Particle& electron : electrons) {
+          if (deltaR(electron, j) >= 0.2) {continue ;}
+          else { isIsolated = false ;
+            break;}
+        }
+        if ( isIsolated ) isolated_jets.push_back(j);
       }
-
+      
       /// Discard electrons within cone of R=.4 of an isolated jet
       Particles isolated_electrons;
       for  (const Particle& electron : electrons) {
-	for (const Jet ije : isolated_jets) {
-	  if (deltaR(electron, ije) >= 0.4) continue;
-	}
-	isolated_electrons.push_back(electron);     
+        isIsolated = true ;
+        for (const Jet ije : isolated_jets) {
+          if (deltaR(electron, ije) >= 0.4) {continue ;}
+          else { isIsolated = false ; break ;}
+        }
+        if ( isIsolated ) isolated_electrons.push_back(electron);     
       }
-
+      
       /// remove muons within R=.4 of isolated jets
       Particles isolated_muons;
       for  (const Particle& muon : muons) {
-	for (const Jet ijm : isolated_jets) {
-	  if (deltaR(muon, ijm) >= 0.4) continue;
-	}
-	isolated_muons.push_back(muon);     
+        isIsolated = true ;
+        for (const Jet ijm : isolated_jets) {
+          if (deltaR(muon, ijm) >= 0.4) {continue ;}
+          else { isIsolated = false ; break ;}
+        }
+        if ( isIsolated ) isolated_muons.push_back(muon);     
       }
-
-
+      
+      
       // Require event to contain exactly one isolated lepton which fired the trigger
       const bool hasSingleIsolatedLepton = ((isolated_muons.size() + isolated_electrons.size()) == 1);
       //      if ( !hasSingleIsolatedLepton ) { MSG_INFO(0.5) ; vetoEvent ; }
@@ -206,7 +214,7 @@ namespace Rivet {
       scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factorTeV) ;
       scale({_hSL_topAbsYTtbarSys}, scale_factorGeV) ;
    
-      MSG_INFO(crossSection()) ;    
+      //MSG_INFO(crossSection()) ;    
     }
     
     /// @name Histograms
