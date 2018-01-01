@@ -1,4 +1,6 @@
+#!/cvmfs/sft.cern.ch/lcg/releases/LCG_87/Python/2.7.10/x86_64-slc6-gcc62-opt/bin/python
 #!/usr/local/opt/python/libexec/bin/python
+
 import yoda, random
 hs=yoda.read("Rivet.yoda", asdict=False)
 #h = yoda.Histo1D(20, 0.0, 1.0, "/foo")
@@ -20,4 +22,4 @@ pl.title(r'Inspire:1304289 ; pp at 7 TeV')
 pl.grid(True)
 
 pl.plot(xs,ys)
-pl.savefig("test.pdf")
+pl.savefig("hadronicTopPT.pdf")
