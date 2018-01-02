@@ -141,3 +141,28 @@ veto code 7: 1139
 veto code 8: 587
 passed: 6089
 
+# *****************
+# ****plots19******
+# *****************
+
+Cross Section (nb) = 5.857e-08
+Event 200000 (1:13:48 elapsed)
+Finished event loop at 2018-01-02 16:07:02
+Cross-section = 1.673150e+02 pb
+Rivet run completed at 2018-01-02 16:07:02, time elapsed = 1:13:48
+Histograms written to /home/ppe/n/nwarrack/public_ppe/Rivet/RivetAnalyses/MyRivetAnalyses/ATLAS_2014_I1304289/Rivet.yoda
+[1]+  Done                    run-pythia -c Top:all=on -e 7000 -n 200000 -c PhaseSpace:bias2Selection=on -c PhaseSpace:bias2SelectionPow=3 -L P8Hook_TTbarSemiLep.so -u TTbarSemiLep -o fifo.hepmc
+
+rivet -a ATLAS_2014_I1304289 -x 177.3 fifo.hepmc > veto.log
+
+
+199995 lines read from file
+veto code 1: 62754
+veto code 2: 104464
+veto code 3: 4797
+veto code 4: 10002
+veto code 5: 123
+veto code 6: 0
+veto code 7: 2736
+veto code 8: 1407
+passed: 13701
