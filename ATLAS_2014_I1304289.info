@@ -7,13 +7,12 @@ InspireID: 1304289
 Status: UNVALIDATED
 Authors:
  - Neil Warrack, neil.warrack@cern.ch
- - Andy Buckley, andy.buckley@cern.ch
-#References:
-#- "arXiv:1407.0371v3"
+References:
+- "arXiv:1407.0371"
 RunInfo: <Describe event types, cuts, and other general generator config tips.>
 NeedCrossSection: no
-#Beams: [p+, p+]
-#Energies: [3500, 3500]
+Beams: [p+, p+]
+Energies: 7000
 Description:
  "The normalized differential cross section for the top quark pair production is measured in pp collisions at a centre-of-mass energy of $7 \text{TeV}$. The dataset corresponds to an integrated luminosity of $4.6 fb^{-1}$, recorded in 2011. Events are selected in the lepton+jets channel, requiring exactly one lepton and at least four jets with at least one of the jets tagged as originating from a b-quark"
 BibKey: Aad:2014zka

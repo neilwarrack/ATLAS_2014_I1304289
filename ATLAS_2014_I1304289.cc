@@ -32,7 +32,7 @@ namespace Rivet {
 
 
       // declare tops with leptonic and hadronic decay mode, includes by default decays via taus. 
-      declare(PartonicTops(PartonicTops::E_MU),     "LeptonicPartonTops");
+      declare(PartonicTops(PartonicTops::E_MU_TAU),     "LeptonicPartonTops");
       declare(PartonicTops(PartonicTops::HADRONIC), "HadronicPartonTops");
 
       
@@ -52,14 +52,13 @@ namespace Rivet {
       
       
       // exclude electrons in gap between barrel and endcap calorimeters
-      IdentifiedFinalState electronfs((Cuts::abseta > 1.52 && Cuts::abseta < 2.47 && Cuts::pT > 15*GeV)
-				      || (Cuts::abseta < 1.37 && Cuts::pT > 15*GeV));
+      IdentifiedFinalState electronfs ( ( Cuts::abseta > 1.52 && Cuts::abseta < 2.47 && Cuts::pT > 15*GeV ) || (Cuts::abseta < 1.37 && Cuts::pT > 15*GeV) ) ;
       electronfs.acceptId(PID::ELECTRON);
       declare(electronfs, "Electron");
       
       
       // declare mising energy projection
-      addProjection(MissingMomentum(fs), "MissingMomenta");
+      addProjection(MissingMomentum(fs), "MissingMomenta") ;
 
     
       // Book histos
@@ -71,7 +70,7 @@ namespace Rivet {
 
 
     void analyze(const Event& event) {
-      //    cout << "test" << endl;
+
       // Find tops & veto if not semileptonic.
       const Particles leptonicpartontops = apply<ParticleFinder>(event, "LeptonicPartonTops").particlesByPt();
       const Particles hadronicpartontops = apply<ParticleFinder>(event, "HadronicPartonTops").particlesByPt();

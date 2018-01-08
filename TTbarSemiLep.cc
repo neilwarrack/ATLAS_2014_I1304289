@@ -13,7 +13,7 @@ namespace Pythia8 {
       int ntlep = 0, nthad = 0;
       for (int i = 1; i < process.size(); ++i) {
         Particle& p = process[i];
-        if (p.idAbs() != 6) continue;
+        if (p.idAbs() != 6) continue; 
         // cout << i << ": PID=" << p.id() << " status=" << p.status() << " d1=" << p.daughter1() << ", d2=" << p.daughter2() << endl;
         Particle* w = nullptr;
         if (p.daughter1() != 0 && process[p.daughter1()].idAbs() == 24) w = &process[p.daughter1()];

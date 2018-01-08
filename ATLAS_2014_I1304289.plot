@@ -1,7 +1,7 @@
 # BEGIN PLOT /ATLAS_2014_I1304289/d01-x01-y01
-#Title=[Uncomment and insert title for histogram d01-x01-y01 here]
-#XLabel=[Uncomment and insert x-axis label for histogram d01-x01-y01 here]
-#YLabel=[Uncomment and insert y-axis label for histogram d01-x01-y01 here]
+Title=pT of hadronically decaying top quark
+XLabel=pT [GeV]
+YLabel=1
 # + any additional plot settings you might like, see make-plots documentation
 # END PLOT
 
