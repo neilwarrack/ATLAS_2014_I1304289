@@ -85,37 +85,73 @@ namespace Rivet {
       const Jets jets = apply<FastJets>(event, "AntiKt04").jetsByPt(Cuts::pT > 25*GeV && Cuts::abseta < 2.5);
 
 
-
-      // Isolate electrons and jets.
+      // Isolate electrons.
       // Discard jets within cone of R=0.2 of electron
+      bool jetTooClose = false ;
+      bool leptonTooClose = false ;
+      int jetCtr = 0 ;
+      Particles isolated_electrons ;
+      Particles isolated_muons ;
       Jets isolated_jets;
-      bool tooClose = false ;
+
+
+
+      // Isolate jets (Discard jets within cone of R=0.2 of electron)
+     
       for (const Jet j : jets) {
-	for (const Particle& electron : electrons) {
-	  if (deltaR(electron, j) <= 0.2) tooClose = true ; 
-	}
-	if ( !tooClose ) isolated_jets.push_back(j) ;
-	tooClose = false ; // reset flag
+        for (const Particle& electron : electrons) {    
+          if (deltaR(electron, j) <= 0.2) jetTooClose = true ; 
+        }
+        if ( !jetTooClose ) isolated_jets.push_back(j) ;
+        jetTooClose = false ; // reset flag
+      }
+     
+
+
+      for (const Particle& electron : electrons) {
+        
+        for (const Jet j1 : jets) 
+          {
+            if ( deltaR(electron, j1) <= 0.2 ) jetTooClose = true ;
+            if ( jetTooClose )  // search for another jet within R < 0.4
+              {              
+                for (const Jet j2 : jets) {
+                  if ( deltaR(electron, j2) <= 0.4 )  jetCtr++ ;
+                }
+                
+                if ( jetCtr > 1 ) leptonTooClose = true ;
+                jetCtr = 0 ; // reset ctr
+                if ( !leptonTooClose ) {
+                  isolated_electrons.push_back(electron) ;
+                  leptonTooClose = false // reset flag
+                    break ;
+                }
+                
+              }
+            jetTooClose = false ; // reset flag
+          }
       }
       
+      /*
       /// Discard electrons within cone of R=.4 of an isolated jet
       Particles isolated_electrons;
       for (const Particle& electron : electrons) {
-	for (const Jet ije : isolated_jets) {
-	  if (deltaR(ije, electron) <= 0.4) tooClose = true ;
-	}
-	if ( !tooClose ) isolated_electrons.push_back(electron);     
-	tooClose = false ; // reset flag     
+        for (const Jet ije : isolated_jets) {
+          if (deltaR(ije, electron) <= 0.4) tooClose = true ;
+        }
+        if ( !tooClose ) isolated_electrons.push_back(electron);     
+        tooClose = false ; // reset flag     
       }
-      
+      */
+
       /// remove muons within R=.4 of isolated jets
       Particles isolated_muons;
       for (const Particle& muon : muons) {
-	for (const Jet ijm : isolated_jets) {
-	  if (deltaR(ijm, muon) <= 0.4) tooClose = true ;
-	}
-	if ( !tooClose ) isolated_muons.push_back(muon);     
-	tooClose = false ; // reset flat    
+        for (const Jet ij : isolated_jets) {
+          if (deltaR(ij, muon) <= 0.4) leptonTooClose = true ;
+        }
+        if ( !leptonTooClose ) isolated_muons.push_back(muon);     
+        leptonTooClose = false ; // reset flat    
       }
       
       
