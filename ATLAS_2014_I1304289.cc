@@ -72,26 +72,71 @@ namespace Rivet {
       // Find tops & veto if not semileptonic.
       const Particles leptonicpartontops = apply<ParticleFinder>(event, "LeptonicPartonTops").particlesByPt();
       const Particles hadronicpartontops = apply<ParticleFinder>(event, "HadronicPartonTops").particlesByPt();
-      const bool isSemiLeptonic = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
-      //      if ( !isSemiLeptonic ) { MSG_INFO(0.1) ; vetoEvent ; }
-      if ( !isSemiLeptonic ) {   cout<<"1"<<endl; vetoEvent ; }
+
+      const bool isSemileptonic  = (leptonicpartontops.size() == 1 && hadronicpartontops.size() == 1 );
+      const bool isDileptonic    = (leptonicpartontops.size() == 2 && hadronicpartontops.size() == 0 );
+      const bool isFullyHadronic = (leptonicpartontops.size() == 0 && hadronicpartontops.size() == 2 );
+
+      //if ( !isSemileptonic && !isDileptonic && !isFullyHadronic ) {   cout<<"1"<<endl; vetoEvent ; }
+      //if ( !isSemileptonic && !isDileptonic) {   cout<<"1"<<endl; vetoEvent ; }
      
       
       // Fill top quarks defined in the parton level, full phase space
-
-      const FourMomentum tLP4 = leptonicpartontops[0] ;
-      const FourMomentum tHP4 = hadronicpartontops[0] ;
-      const FourMomentum ttbarP4 = tLP4 + tHP4 ;
+      if ( isSemileptonic ){
+      const FourMomentum t1P4 = leptonicpartontops[0] ;
+      const FourMomentum t2P4 = hadronicpartontops[0] ;
+      const FourMomentum ttbarP4 = t1P4 + t2P4 ;
       const double weight = event.weight() ;
 
-     
-      _hSL_hadronicTopPt->fill(tHP4.pT(), weight) ;
+      _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
+      _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
       _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
       _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
-      _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;
+      _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;      
+      cout <<"9"<<endl;
+      }
+     
+      
+      if ( isFullyHadronic){
+      const FourMomentum t1P4 = hadronicpartontops[0] ;
+      const FourMomentum t2P4 = hadronicpartontops[1] ;
+      const FourMomentum ttbarP4 = t1P4 + t2P4 ;
+      const double weight = event.weight() ;
 
+      _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
+ _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
+      _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
+      _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
+      _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;      
+      cout<<"9"<<endl;
+      }
+     
+      
+      if ( isDileptonic ){
+      const FourMomentum t1P4 = leptonicpartontops[0] ;
+      const FourMomentum t2P4 = leptonicpartontops[1] ;
+      const FourMomentum ttbarP4 = t1P4 + t2P4 ;
+      const double weight = event.weight() ;
+
+      _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
+ _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
+      _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
+      _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
+      _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;      
+      cout <<"9"<<endl;
+}
+      
+      if ( leptonicpartontops.size() + hadronicpartontops.size() == 1 ) {   cout<<"1"<<endl; }
+      if ( leptonicpartontops.size() + hadronicpartontops.size() == 0 ) {   cout<<"2"<<endl; }
+      if ( leptonicpartontops.size() + hadronicpartontops.size() >= 3 ) {   cout<<"3"<<endl; }
+      if ( leptonicpartontops.size() + hadronicpartontops.size() == 4 ) {   cout<<"4"<<endl; }
+      if ( leptonicpartontops.size() + hadronicpartontops.size() == 5 ) {   cout<<"5"<<endl; }
+      if ( !isSemileptonic && !isDileptonic && !isFullyHadronic ) {   cout<<"8"<<endl; vetoEvent ; }
+
+
+      
       //      MSG_INFO(100) ;
-      cout<<"9"<<endl ;
+    
     }
 
     
