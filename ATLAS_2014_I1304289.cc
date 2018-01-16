@@ -104,7 +104,7 @@ namespace Rivet {
       const double weight = event.weight() ;
 
       _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
- _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
+      _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
       _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
       _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
       _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;      
@@ -119,19 +119,17 @@ namespace Rivet {
       const double weight = event.weight() ;
 
       _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
- _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
+      _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
       _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
       _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
       _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;      
       cout <<"9"<<endl;
-}
+      }
       
       if ( leptonicpartontops.size() + hadronicpartontops.size() == 1 ) {   cout<<"1"<<endl; }
       if ( leptonicpartontops.size() + hadronicpartontops.size() == 0 ) {   cout<<"2"<<endl; }
       if ( leptonicpartontops.size() + hadronicpartontops.size() >= 3 ) {   cout<<"3"<<endl; }
-      if ( leptonicpartontops.size() + hadronicpartontops.size() == 4 ) {   cout<<"4"<<endl; }
-      if ( leptonicpartontops.size() + hadronicpartontops.size() == 5 ) {   cout<<"5"<<endl; }
-      if ( !isSemileptonic && !isDileptonic && !isFullyHadronic ) {   cout<<"8"<<endl; vetoEvent ; }
+      if ( !isSemileptonic && !isDileptonic && !isFullyHadronic ) {   cout<<"4"<<endl; vetoEvent ; }
 
 
       
