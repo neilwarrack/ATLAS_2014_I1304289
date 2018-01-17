@@ -88,7 +88,7 @@ namespace Rivet {
       const FourMomentum ttbarP4 = t1P4 + t2P4 ;
       const double weight = event.weight() ;
 
-      _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
+      //_hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
       _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
       _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
       _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
@@ -104,7 +104,7 @@ namespace Rivet {
       const double weight = event.weight() ;
 
       _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
-      _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
+      //_hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
       _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
       _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
       _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;      
@@ -118,19 +118,36 @@ namespace Rivet {
       const FourMomentum ttbarP4 = t1P4 + t2P4 ;
       const double weight = event.weight() ;
 
-      _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
+      //_hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
       _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
       _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
       _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
       _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;      
       cout <<"9"<<endl;
       }
+
+      /*
+      if ( !isSemileptonic && !isDileptonic && !isFullyHadronic && (leptonicpartontops.size() == 1)){
+      const FourMomentum t1P4 = leptonicpartontops[0] ;
+      const double weight = event.weight() ;
+      _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
+      cout <<"5"<<endl;
+      }
+
+      if ( !isSemileptonic && !isDileptonic && !isFullyHadronic && (hadronicpartontops.size() == 1)){
+      const FourMomentum t1P4 = hadronicpartontops[0] ;
+      const double weight = event.weight() ;
+      _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
+      cout <<"6"<<endl;
+      }
+      
+
       
       if ( leptonicpartontops.size() + hadronicpartontops.size() == 1 ) {   cout<<"1"<<endl; }
       if ( leptonicpartontops.size() + hadronicpartontops.size() == 0 ) {   cout<<"2"<<endl; }
       if ( leptonicpartontops.size() + hadronicpartontops.size() >= 3 ) {   cout<<"3"<<endl; }
       if ( !isSemileptonic && !isDileptonic && !isFullyHadronic ) {   cout<<"4"<<endl; vetoEvent ; }
-
+      */
 
       
       //      MSG_INFO(100) ;
@@ -142,9 +159,12 @@ namespace Rivet {
     void finalize() {
 
       //const float BR = 0.438 ; // branching ratio of ttbar -> l+jets channel
-      double scale_factor = crossSection()*picobarn/sumOfWeights() ;
+      double scale_factor = crossSection()*picobarn*10/sumOfWeights() ;
+      double scale_factor01 = crossSection()*picobarn*10/sumOfWeights()/1000 ;
 
-      scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys}, scale_factor) ;
+      scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factor) ;
+      scale({_hSL_topAbsYTtbarSys}, scale_factor01) ;
+
      
       //MSG_INFO(crossSection()) ;    
     }
