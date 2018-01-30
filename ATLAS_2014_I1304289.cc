@@ -1,13 +1,13 @@
 // -*- C++ -*-
 #include "Rivet/Analysis.hh"
-#include "Rivet/Projections/FinalState.hh"
+//#include "Rivet/Projections/FinalState.hh"
 // #include "Rivet/Projections/VetoedFinalState.hh"
-#include "Rivet/Projections/FastJets.hh"
+//#include "Rivet/Projections/FastJets.hh"
 #include "Rivet/Projections/PartonicTops.hh"
-#include "Rivet/Tools/JetUtils.hh" 
-#include "Rivet/Projections/MissingMomentum.hh"
-#include "Rivet/Projections/IdentifiedFinalState.hh"
-#include "Rivet/Projections/WFinder.hh"
+//#include "Rivet/Tools/JetUtils.hh" 
+//#include "Rivet/Projections/MissingMomentum.hh"
+//#include "Rivet/Projections/IdentifiedFinalState.hh"
+//#include "Rivet/Projections/WFinder.hh"
 
 
 
@@ -96,7 +96,7 @@ namespace Rivet {
       cout <<"9"<<endl;
       }
      
-      
+      /*
       if ( isFullyHadronic){
       const FourMomentum t1P4 = hadronicpartontops[0] ;
       const FourMomentum t2P4 = hadronicpartontops[1] ;
@@ -110,22 +110,21 @@ namespace Rivet {
       _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;      
       cout<<"9"<<endl;
       }
-     
-      
+           
       if ( isDileptonic ){
       const FourMomentum t1P4 = leptonicpartontops[0] ;
       const FourMomentum t2P4 = leptonicpartontops[1] ;
       const FourMomentum ttbarP4 = t1P4 + t2P4 ;
       const double weight = event.weight() ;
 
-      //_hSL_hadronicTopPt->fill(t1P4.pT(), weight) ;
-      _hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
+      _hSL_hadronicTopPt->fill(t1P4.pT(), weight) ; // the leading leptonic top
+      //_hSL_hadronicTopPt->fill(t2P4.pT(), weight) ;
       _hSL_ttbarMass->fill(ttbarP4.mass(), weight) ;
       _hSL_topPtTtbarSys->fill(ttbarP4.pT(), weight) ;
       _hSL_topAbsYTtbarSys->fill(ttbarP4.absrap(), weight) ;      
       cout <<"9"<<endl;
       }
-
+      */
       /*
       if ( !isSemileptonic && !isDileptonic && !isFullyHadronic && (leptonicpartontops.size() == 1)){
       const FourMomentum t1P4 = leptonicpartontops[0] ;
@@ -141,14 +140,14 @@ namespace Rivet {
       cout <<"6"<<endl;
       }
       
-
-      
-      if ( leptonicpartontops.size() + hadronicpartontops.size() == 1 ) {   cout<<"1"<<endl; }
-      if ( leptonicpartontops.size() + hadronicpartontops.size() == 0 ) {   cout<<"2"<<endl; }
-      if ( leptonicpartontops.size() + hadronicpartontops.size() >= 3 ) {   cout<<"3"<<endl; }
-      if ( !isSemileptonic && !isDileptonic && !isFullyHadronic ) {   cout<<"4"<<endl; vetoEvent ; }
       */
-
+      
+      if ( leptonicpartontops.size() + hadronicpartontops.size() == 1 ) {   cout<<"1"; }
+      if ( leptonicpartontops.size() + hadronicpartontops.size() == 0 ) {   cout<<"2"; }
+      if ( leptonicpartontops.size() + hadronicpartontops.size() >= 3 ) {   cout<<"3"; }
+      if ( !isSemileptonic && !isDileptonic && !isFullyHadronic ) {   cout<<"4"; }
+      if (leptonicpartontops.size() == 1 ) {cout << "5"; }
+      cout << endl;
       
       //      MSG_INFO(100) ;
     
@@ -159,13 +158,19 @@ namespace Rivet {
     void finalize() {
 
       //const float BR = 0.438 ; // branching ratio of ttbar -> l+jets channel
-      double scale_factor = crossSection()*picobarn*10/sumOfWeights() ;
-      double scale_factor01 = crossSection()*picobarn*10/sumOfWeights()/1000 ;
+      //double scale_factor = crossSection()*picobarn/sumOfWeights() ;
+      //double scale_factor01 = crossSection()*picobarn/sumOfWeights()/1000 ;
 
-      scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factor) ;
-      scale({_hSL_topAbsYTtbarSys}, scale_factor01) ;
+      //scale({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, scale_factor) ;
+      //scale({_hSL_topAbsYTtbarSys}, scale_factor01) ;
 
-     
+      // Unit-normalized
+      normalize({_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys}, 1000); //< Factor from x/y unit mismatch in HepData
+      normalize(_hSL_topAbsYTtbarSys);
+      // xsec-normalized
+      //scale( {_hSL_hadronicTopPt, _hSL_ttbarMass, _hSL_topPtTtbarSys, _hSL_topAbsYTtbarSys}, 
+      //     crossSection()/picobarn/sumOfWeights()/0.438);
+
       //MSG_INFO(crossSection()) ;    
     }
     

@@ -28,7 +28,7 @@ namespace Pythia8 {
       // cout << ntlep << " " << nthad << endl;
       // cout << "----------------" << endl;
       if (ntlep + nthad != 2) return false;
-      return ntlep != nthad;
+      return ntlep != nthad; // will veto (ie return TRUE) only if ((ntlep + nthad == 2) && ( ntlep != nthad)), will only keep: ntlep == nthad == 1
     }
 
   };
