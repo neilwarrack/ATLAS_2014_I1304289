@@ -13,11 +13,14 @@
 
 using namespace std;
 
-
+/// countlines in input file
 int lineCounter(ifstream& dat) {
   int ctr = 0 ;
   string line ;
-  while (getline(dat, line)) ctr++ ;
+  while (getline(dat, line)) { 
+    if (line.empty()) break; 
+    ctr++ ;
+  }
   // clear tags and return ifstream to beginning of input file
   dat.clear();
   dat.seekg(0, ios::beg);
@@ -61,7 +64,8 @@ int main ( int argc, char *argv[] ){
 
   
   // Count lines in input file
-  int const static lines = lineCounter(mydata) ;
+  int const static lines = lineCounter(mydata);
+  cout << "lines counted by linecounter() = " << lines << endl;
   int vetoFrequency[] = {0,0,0,0,0,0,0,0,0} ;
   const static int m = atoi(argv[2]) ;
   int x = 0 ;
@@ -69,8 +73,8 @@ int main ( int argc, char *argv[] ){
   string linestring ;
   
 
-  // abort of lines to skip > lines in file
-  if (m > lines) {
+  // abort if No. of lines to skip > lines in file
+  if ( m > lines) {
    cout << "ERROR: line to skip is larger than lines in file " << endl ; 
    return 1;
   }
@@ -84,16 +88,19 @@ int main ( int argc, char *argv[] ){
       getline(mydata, linestring);
       // cout << "WARNING: ignoring first " << m << " lines..." << line + 1 << " -> " << infoline << endl; // uncomment this line to print skipped lines to screen
       line++ ;
-      
-    } else { // if ( line >= m )
-      
+      cout << "line=" << line << endl;      
+    } else if ( line >= m && line < lines ){
+
       // output info to user
       cout << "INFO: Ignored first " << m << " lines..." << endl ;
       cout << "INFO: reading remaining " << lines - m << " lines from file" << endl ;
       
       while(getline(mydata, linestring))
 	{
+	  line++;
+            cout << "!line=" << line << endl;      
 	  istringstream iss(linestring) ;
+	  
 	  while(iss >> x){
 	    //___________________________________________________________________________
 	    if ( x == 1 ) {vetoFrequency[0] =(vetoFrequency[0]+1);}else{
@@ -105,21 +112,20 @@ int main ( int argc, char *argv[] ){
 			if ( x == 7 ) {vetoFrequency[6] =(vetoFrequency[6]+1);}else{
 			  if ( x == 8 ) {vetoFrequency[7] =(vetoFrequency[7]+1);}else{
 			    if ( x == 9 ) {vetoFrequency[8] =(vetoFrequency[8]+1);}
-			   }
-			 }
-		       }
-		     }
-		   }
-		 }
-	       }
-	     }
-	     //___________________________________________________________________________
-	   } // end of while statement
-	   
-	   line++;
-	 }
-     }
- }
+			  }
+			}
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	    //___________________________________________________________________________
+	  } // end of while statement
+	 
+	}
+    }    
+  }
  
  mydata.close(); // close when finished   
  
